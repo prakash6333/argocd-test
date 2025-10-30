@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo.git', credentialsId: 'git-creds'
+                git branch: 'main', url: 'https://github.com/prakash6333/argocd-test.git'
             }
         }
 
