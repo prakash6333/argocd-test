@@ -10,7 +10,10 @@ pipeline {
 
         stage('Validate YAML') {
             steps {
-                sh 'yamllint .'
+                sh '''
+                    pip install yamllint
+                    yamllint .
+                '''
             }
         }
 
@@ -25,7 +28,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ Validation and scan completed!'
+            echo '✅ YAML validated and SonarQube scan completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed — check logs.'
         }
     }
 }
