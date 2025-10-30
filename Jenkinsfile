@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         SONARQUBE = 'sonarqube'
-        MAVEN_HOME = tool name: 'Maven 3', type: 'maven'
+        MAVEN_HOME = tool name: 'Maven', type: 'maven'
     }
 
     stages {
