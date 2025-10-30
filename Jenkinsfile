@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        SONARQUBE = 'sonarqube'
-        MAVEN_HOME = tool name: 'maven', type: 'maven'
-    }
-
     stages {
         stage('Checkout Code') {
             steps {
@@ -13,55 +8,24 @@ pipeline {
             }
         }
 
-        stage('Build with Maven') {
+        stage('Validate YAML') {
             steps {
-                sh "${MAVEN_HOME}/bin/mvn clean package"
+                sh 'yamllint .'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube') {
-                    sh "${MAVEN_HOME}/bin/mvn sonar:sonar -Dsonar.projectKey=myproject"
+                    sh 'sonar-scanner -Dsonar.projectKey=argocd-configs'
                 }
-            }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        stage('Upload to Nexus') {
-            steps {
-                nexusArtifactUploader(
-                    nexusVersion: 'nexus3',
-                    protocol: 'http',
-                    nexusUrl: 'localhost:8081',
-                    groupId: 'com.mycompany.app',
-                    version: '1.0.0',
-                    repository: 'maven-releases',
-                    credentialsId: 'nexus-creds',
-                    artifacts: [[
-                        artifactId: 'myapp',
-                        classifier: '',
-                        file: 'target/myapp.jar',
-                        type: 'jar'
-                    ]]
-                )
             }
         }
     }
 
     post {
         success {
-            echo '✅ Build, Test, and Deploy Completed Successfully!'
-        }
-        failure {
-            echo '❌ Pipeline Failed!'
+            echo '✅ Validation and scan completed!'
         }
     }
 }
